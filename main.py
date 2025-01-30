@@ -1,11 +1,4 @@
-To remove **334 bytes from the end of the JPEG file** before saving it, you can simply slice the data to exclude the last 334 bytes. This is straightforward to implement in Python.
-
-Here’s the updated script that removes 334 bytes from the end of the repaired JPEG file before saving it:
-
----
-
-### Updated Script:
-```python
+python
 import os
 
 def find_ffda_offset(data):
@@ -98,43 +91,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-```
-
----
-
-### Key Changes:
-1. **Remove 334 Bytes from the End**:
-   - The line `repaired_data = repaired_data[:-334]` removes the last 334 bytes from the repaired data before saving it.
-
-2. **Order of Operations**:
-   - The script first removes EXIF metadata and then trims the last 334 bytes. This ensures that the final output is clean and properly truncated.
-
----
-
-### Example Workflow:
-1. Run the script.
-2. Enter the reference file path: `_NHL0592.JPG`.
-3. Enter the encrypted file path: `_NHL0591.JPG.nppp`.
-4. The script will:
-   - Create a `Repaired` folder in the same directory as the encrypted file.
-   - Save the repaired file (with EXIF metadata removed and 334 bytes trimmed from the end) as `Repaired\_NHL0591.JPG`.
-
----
-
-### Output:
-```
-Enter the path to the reference JPEG file: _NHL0592.JPG
-Enter the path to the encrypted JPEG file: _NHL0591.JPG.nppp
-Repaired file saved as Repaired\_NHL0591.JPG
-```
-
----
-
-### Notes:
-- **Truncation**:
-  - Removing 334 bytes from the end of the file may affect the JPEG structure if those bytes are part of critical markers (e.g., `EOI` or other segments). Ensure that the bytes being removed are not essential for the image to be valid.
-
-- **Validation**:
-  - After saving the repaired file, you can open it in an image viewer to confirm that it is valid and displays correctly.
-
-Let me know if you need further assistance! 😊
