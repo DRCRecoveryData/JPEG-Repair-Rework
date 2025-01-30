@@ -42,7 +42,7 @@ def repair_jpeg(encrypted_path, reference_path, output_path):
         encrypted_data = encrypted_file.read()
     
     # Cut the encrypted data from offset 0 to 153605 (inclusive)
-    cut_encrypted_data = encrypted_data[:153606]  # 153606 because slicing is exclusive
+    cut_encrypted_data = encrypted_data[:153605]
     
     # Load the reference JPEG file
     with open(reference_path, 'rb') as reference_file:
