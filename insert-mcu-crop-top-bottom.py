@@ -93,41 +93,37 @@ else:
 
             output_path = os.path.join(repaired_folder, os.path.basename(image_path))
 
-            # Run jpegrepair.exe without modifying MCU number
+            # Run jpegrepair.exe if needed (skip if it fails)
             command = ["jpegrepair.exe", image_path, output_path, "insert", str(mcu_value)]
-            subprocess.run(command, check=True)
+            try:
+                subprocess.run(command, check=True)
+                print(f"Repaired file saved: {output_path}")
+            except subprocess.CalledProcessError:
+                print("Error: JPEG repair failed. Skipping repair step.")
 
-            print(f"Repaired file saved: {output_path}")
-
-            # After repairing, open the image to calculate cropping
+            # After repairing or directly using the image, open it to calculate cropping
             img = Image.open(output_path)
             width, height = img.size
 
-            # Get the crop height based on gray pixels at the bottom
+            # Print original height before cropping
+            print(f"Original height before cropping: {height} pixels")
+
+            # Use Pillow to crop the gray scanlines from the bottom (skip the top crop logic)
             crop_height = get_crop_height_from_pillow(output_path)
 
-            # Subtract 1 MCU (16px) from the calculated crop height
+            # Now, subtract 1 MCU (16px) from the calculated crop height
             crop_height -= 16  # Remove 1 MCU block from the bottom
 
-            # Ensure we don't crop beyond the top of the image
+            # Ensure the final crop height is not below 0
             if crop_height < 0:
                 crop_height = 0
 
-            # Now, crop 1 MCU from the top by subtracting 16 from the crop height
-            final_crop_height = crop_height - 16
+            # Crop the image by removing 1 MCU scanline (16px) from the top to the crop height and save it
+            final_output_path = os.path.join(repaired_folder, os.path.basename(image_path))
+            img_cropped = img.crop((0, 16, width, crop_height))  # Remove 1 MCU scanline from the top
+            img_cropped.save(final_output_path)
 
-            # Ensure the final crop height is not below 0
-            if final_crop_height < 0:
-                final_crop_height = 0
-
-            # Run jpegtran to crop the image by removing 1 MCU from both top and bottom
-            output_path_final = os.path.join(repaired_folder, os.path.basename(image_path))
-            crop_command = [
-                "jpegtran.exe", "-crop", f"{width}x{final_crop_height}+0+16", output_path, output_path_final
-            ]
-            subprocess.run(crop_command, check=True)
-
-            print(f"Final cropped file saved: {output_path_final}")
+            print(f"Final cropped file saved: {final_output_path}")
 
         else:
             print("No valid MCU scanline found with gray pixels.")
