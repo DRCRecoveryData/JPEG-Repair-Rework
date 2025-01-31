@@ -1,4 +1,3 @@
-python
 import os
 
 def find_ffda_offset(data):
