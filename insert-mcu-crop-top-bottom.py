@@ -105,18 +105,25 @@ else:
 
             # Get the crop height based on gray pixels at the bottom
             crop_height = get_crop_height_from_pillow(output_path)
-            
+
             # Subtract 1 MCU (16px) from the calculated crop height
-            crop_height -= 16
+            crop_height -= 16  # Remove 1 MCU block from the bottom
 
             # Ensure we don't crop beyond the top of the image
             if crop_height < 0:
                 crop_height = 0
 
-            # Run jpegtran to crop the image by removing 1 MCU from the bottom
+            # Now, crop 1 MCU from the top by subtracting 16 from the crop height
+            final_crop_height = crop_height - 16
+
+            # Ensure the final crop height is not below 0
+            if final_crop_height < 0:
+                final_crop_height = 0
+
+            # Run jpegtran to crop the image by removing 1 MCU from both top and bottom
             output_path_final = os.path.join(repaired_folder, os.path.basename(image_path))
             crop_command = [
-                "jpegtran.exe", "-crop", f"{width}x{crop_height}+0+0", output_path, output_path_final
+                "jpegtran.exe", "-crop", f"{width}x{final_crop_height}+0+16", output_path, output_path_final
             ]
             subprocess.run(crop_command, check=True)
 
