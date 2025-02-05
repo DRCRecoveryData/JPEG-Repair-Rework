@@ -54,7 +54,7 @@ def repair_jpeg(encrypted_path, reference_path, output_path):
     cut_reference_data = reference_data[:ffda_offset + 12]
     
     # Merge the cut reference data with the remaining encrypted data after 153605
-    repaired_data = cut_reference_data + encrypted_data[153606:]
+    repaired_data = cut_reference_data + encrypted_data[153605:]
     
     # Remove EXIF metadata from the repaired data
     repaired_data = remove_exif(repaired_data)
