@@ -58,8 +58,16 @@ def crop_jpeg_height(image_path, crop_height):
     
     return cropped_data
 
-def save_cropped_jpeg(cropped_data, output_path):
-    """Save the cropped JPEG image to a new file."""
+def save_cropped_jpeg(cropped_data, input_path):
+    """Save the cropped JPEG image to the 'Repaired' folder with the same name as the input file."""
+    # Ensure 'Repaired' folder exists
+    repaired_folder = os.path.join(os.path.dirname(input_path), "Repaired")
+    if not os.path.exists(repaired_folder):
+        os.makedirs(repaired_folder)
+
+    # Create the output path with the same name as the input file
+    output_path = os.path.join(repaired_folder, os.path.basename(input_path))
+    
     with open(output_path, "wb") as f:
         f.write(cropped_data)
     print(f"JPEG saved as {output_path} with gray scanlines removed.")
@@ -67,7 +75,7 @@ def save_cropped_jpeg(cropped_data, output_path):
 def crop_bottom_gray_scanlines(input_path):
     """
     Automatically crops the bottom gray scanlines and saves the result without padding.
-    The cropped image is saved in the same location as the original file.
+    The cropped image is saved in the 'Repaired' folder with the same name as the original file.
     """
     # Step 1: Use Pillow to find the crop height based on gray scanlines
     crop_height, gray_scanlines_removed = get_crop_height_from_pillow(input_path)
@@ -75,16 +83,15 @@ def crop_bottom_gray_scanlines(input_path):
     # Step 2: Crop the JPEG file's height using hex manipulation
     cropped_data = crop_jpeg_height(input_path, crop_height)
 
-    # Step 3: Save the cropped image to a new file
-    output_path = os.path.splitext(input_path)[0] + "_cropped" + os.path.splitext(input_path)[1]
-    save_cropped_jpeg(cropped_data, output_path)
+    # Step 3: Save the cropped image to the 'Repaired' folder with the same name
+    save_cropped_jpeg(cropped_data, input_path)
 
     # Log the height change and number of gray scanlines removed
     print(f"Original height: {Image.open(input_path).size[1]}")
     print(f"New height: {crop_height}")
     print(f"Number of gray scanlines removed: {gray_scanlines_removed}")
-    print(f"Cropped image saved to {output_path}. Original file unchanged.")
+    print(f"Cropped image saved to Repaired folder. Original file unchanged.")
 
-# Example usage
-input_path = "_NHL0591.JPG"  # Change this to your file
+# Prompt for the file path
+input_path = input("Enter the path to the JPG file: ")
 crop_bottom_gray_scanlines(input_path)
